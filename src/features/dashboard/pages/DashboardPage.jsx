@@ -31,10 +31,10 @@ const DashboardPage = () => {
     <div className="dashboard-shell flex h-screen" data-theme={resolvedTheme}>
       <Sidebar onLogout={handleLogout} />
 
-      <main className="flex flex-1 flex-col">
+      <main className="flex min-w-0 flex-1 flex-col">
         <Header title="Dashboard" userInitials="JD" />
 
-        <section className="flex-1 overflow-y-auto p-8 space-y-8">
+        <section className="flex-1 overflow-y-auto p-4 space-y-6 sm:p-6 lg:p-8 lg:space-y-8">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
             {stats.map((stat) => (
               <StatCard
@@ -46,8 +46,8 @@ const DashboardPage = () => {
             ))}
           </div>
 
-          <div className="dashboard-panel rounded-xl p-6">
-            <h3 className="dashboard-panel-title mb-4 text-lg">Actividad reciente</h3>
+          <div className="dashboard-panel rounded-xl p-4 sm:p-6">
+            <h3 className="dashboard-panel-title mb-4 text-base sm:text-lg">Actividad reciente</h3>
 
             <div className="space-y-3 text-sm dashboard-muted-text">
               {activity.map((item) => (

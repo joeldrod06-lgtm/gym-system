@@ -59,6 +59,17 @@ const Sidebar = ({ onLogout }) => {
 
   return (
     <>
+      {!isDesktop && !isExpanded && (
+        <button
+          type="button"
+          onClick={toggleSidebar}
+          aria-label="Abrir sidebar"
+          className={`dashboard-mobile-sidebar-trigger flex items-center justify-center rounded-xl border ${tokens.toggleButton}`}
+        >
+          <MenuIcon />
+        </button>
+      )}
+
       {!isDesktop && isExpanded && (
         <div
           className={`fixed inset-0 z-30 transition-opacity duration-300 ${tokens.overlay}`}

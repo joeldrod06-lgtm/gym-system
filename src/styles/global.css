@@ -22,6 +22,16 @@ body {
   background-color: var(--sidebar-overlay, rgba(0, 0, 0, 0.35));
 }
 
+.dashboard-mobile-sidebar-trigger {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 35;
+  height: 2.75rem;
+  width: 2.75rem;
+  backdrop-filter: blur(10px);
+}
+
 .dashboard-shell,
 .dashboard-shell * {
   transition:
@@ -83,4 +93,10 @@ body {
 
 .dashboard-activity-item {
   border-bottom: 1px solid var(--dashboard-divider, rgba(229, 231, 235, 0.6));
+}
+
+@media (max-width: 1023px) {
+  .dashboard-sidebar {
+    max-width: min(18rem, 86vw);
+  }
 }
