@@ -1,15 +1,14 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom"
-import Home from "./Pages/Home/home"
-import Dashboard from "./Pages/Dashboard/Dashboard"
+import { BrowserRouter } from "react-router-dom"
+import { ThemeProvider } from "./context/ThemeContext"
+import AppRoutes from "./routes/AppRoutes"
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-      </Routes>
-    </BrowserRouter>
+    <ThemeProvider>
+      <BrowserRouter>
+        <AppRoutes />
+      </BrowserRouter>
+    </ThemeProvider>
   )
 }
 

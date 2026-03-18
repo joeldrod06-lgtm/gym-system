@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+html,
+body {
+  background-color: var(--app-bg, #f5f5f7);
+  color: var(--app-text, #1a1a1a);
+}
+
+body {
+  transition: background-color 180ms ease, color 180ms ease;
+}
+
+.dashboard-shell {
+  background-color: var(--dashboard-bg, #f5f5f7);
+  color: var(--dashboard-text-primary, #1a1a1a);
+}
+
+.dashboard-sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  background-color: var(--sidebar-overlay, rgba(0, 0, 0, 0.35));
+}
+
+.dashboard-shell,
+.dashboard-shell * {
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.dashboard-sidebar {
+  background-color: var(--dashboard-sidebar-bg, rgba(255, 255, 255, 0.82));
+  border-right: 1px solid var(--dashboard-sidebar-border, rgba(229, 231, 235, 0.8));
+  backdrop-filter: blur(10px);
+}
+
+.dashboard-brand {
+  color: var(--dashboard-brand, #16a34a);
+}
+
+.dashboard-header {
+  background-color: var(--dashboard-header-bg, rgba(255, 255, 255, 0.68));
+  border-bottom: 1px solid var(--dashboard-header-border, rgba(229, 231, 235, 0.8));
+  backdrop-filter: blur(10px);
+}
+
+.dashboard-title,
+.dashboard-panel-title,
+.dashboard-stat-value {
+  color: var(--dashboard-text-primary, #1a1a1a);
+}
+
+.dashboard-secondary-text {
+  color: var(--dashboard-text-secondary, #6b7280);
+}
+
+.dashboard-muted-text {
+  color: var(--dashboard-text-muted, #9ca3af);
+}
+
+.dashboard-avatar {
+  background-color: var(--dashboard-avatar-bg, #16a34a);
+  color: var(--dashboard-avatar-text, #ffffff);
+}
+
+.dashboard-card,
+.dashboard-panel {
+  background-color: var(--dashboard-surface, rgba(255, 255, 255, 0.72));
+  border: 1px solid var(--dashboard-surface-border, rgba(229, 231, 235, 0.8));
+}
+
+.dashboard-card:hover {
+  background-color: var(--dashboard-surface-hover, rgba(255, 255, 255, 0.88));
+}
+
+.dashboard-stat-icon {
+  background-color: var(--dashboard-icon-bg, rgba(220, 252, 231, 0.95));
+  color: var(--dashboard-icon-fg, #16a34a);
+}
+
+.dashboard-activity-item {
+  border-bottom: 1px solid var(--dashboard-divider, rgba(229, 231, 235, 0.6));
+}
