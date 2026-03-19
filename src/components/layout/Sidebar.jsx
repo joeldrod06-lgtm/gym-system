@@ -1,10 +1,17 @@
 import { useEffect, useState } from "react"
-import { Link, useLocation } from "react-router-dom"
+import { Link, useLocation, useNavigate } from "react-router-dom"
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined"
 import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline"
+import CardMembershipIcon from "@mui/icons-material/CardMembership"
+import AttachMoneyIcon from "@mui/icons-material/AttachMoney"
+import FitnessCenterIcon from "@mui/icons-material/FitnessCenter"
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart"
+import InventoryIcon from "@mui/icons-material/Inventory"
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined"
 import MenuIcon from "@mui/icons-material/Menu"
 import ChevronRightIcon from "@mui/icons-material/ChevronRight"
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
+import ExpandLessIcon from "@mui/icons-material/ExpandLess"
 import ThemeToggle from "../theme/ThemeToggle"
 import { useTheme } from "../../hooks/useTheme"
 
@@ -13,8 +20,69 @@ const EXPANDED_WIDTH = "280px"
 const COLLAPSED_WIDTH = "92px"
 
 const navigationItems = [
-  { id: "dashboard", label: "Dashboard", icon: DashboardOutlinedIcon, path: "/dashboard" },
-  { id: "members", label: "Miembros", icon: PeopleOutlineIcon, path: "/members" },
+  { 
+    id: "dashboard", 
+    label: "Dashboard", 
+    icon: DashboardOutlinedIcon, 
+    path: "/dashboard" 
+  },
+  { 
+    id: "clientes", 
+    label: "Clientes", 
+    icon: PeopleOutlineIcon,
+    subItems: [
+      { id: "clientes-lista", label: "Lista", path: "/clientes/lista" },
+      { id: "clientes-registrar", label: "Registrar", path: "/clientes/registrar" },
+      { id: "clientes-inactivos", label: "Inactivos", path: "/clientes/inactivos" }
+    ]
+  },
+  { 
+    id: "membresias", 
+    label: "Membresías", 
+    icon: CardMembershipIcon,
+    subItems: [
+      { id: "membresias-planes", label: "Planes", path: "/membresias/planes" },
+      { id: "membresias-activas", label: "Activas", path: "/membresias/activas" },
+      { id: "membresias-vencidas", label: "Vencidas", path: "/membresias/vencidas" }
+    ]
+  },
+  { 
+    id: "finanzas", 
+    label: "Finanzas", 
+    icon: AttachMoneyIcon,
+    subItems: [
+      { id: "finanzas-caja", label: "Caja", path: "/finanzas/caja" },
+      { id: "finanzas-ingresos", label: "Ingresos", path: "/finanzas/ingresos" },
+      { id: "finanzas-egresos", label: "Egresos", path: "/finanzas/egresos" }
+    ]
+  },
+  { 
+    id: "asistencias", 
+    label: "Asistencias", 
+    icon: FitnessCenterIcon,
+    subItems: [
+      { id: "asistencias-checkin", label: "Check-in", path: "/asistencias/checkin" },
+      { id: "asistencias-historial", label: "Historial", path: "/asistencias/historial" }
+    ]
+  },
+  { 
+    id: "ventas", 
+    label: "Ventas", 
+    icon: ShoppingCartIcon,
+    subItems: [
+      { id: "ventas-nueva", label: "Nueva venta", path: "/ventas/nueva" },
+      { id: "ventas-historial", label: "Historial", path: "/ventas/historial" }
+    ]
+  },
+  { 
+    id: "inventario", 
+    label: "Inventario", 
+    icon: InventoryIcon,
+    subItems: [
+      { id: "inventario-productos", label: "Productos", path: "/inventario/productos" },
+      { id: "inventario-stock", label: "Stock", path: "/inventario/stock" }
+    ]
+  }
 ]
 
 const themeLabels = {
@@ -24,6 +92,7 @@ const themeLabels = {
 
 const Sidebar = ({ onLogout }) => {
   const location = useLocation()
+  const navigate = useNavigate()
   const { resolvedTheme, tokens } = useTheme()
   const [isDesktop, setIsDesktop] = useState(
     typeof window !== "undefined" ? window.innerWidth >= DESKTOP_BREAKPOINT : true
@@ -32,6 +101,7 @@ const Sidebar = ({ onLogout }) => {
     typeof window !== "undefined" ? window.innerWidth >= DESKTOP_BREAKPOINT : true
   )
   const [hoveredItem, setHoveredItem] = useState(null)
+  const [expandedMenus, setExpandedMenus] = useState({})
 
   useEffect(() => {
     const media = window.matchMedia(`(min-width:${DESKTOP_BREAKPOINT}px)`)
@@ -47,7 +117,46 @@ const Sidebar = ({ onLogout }) => {
     return () => media.removeEventListener("change", handler)
   }, [])
 
-  const toggleSidebar = () => setIsExpanded((prev) => !prev)
+  // Inicializar menú abierto basado en la ruta actual (solo uno)
+  useEffect(() => {
+    const activeMenu = navigationItems.find(item => 
+      item.subItems?.some(subItem => 
+        location.pathname === subItem.path || location.pathname.startsWith(subItem.path)
+      )
+    )
+    
+    if (activeMenu) {
+      setExpandedMenus({ [activeMenu.id]: true })
+    } else {
+      setExpandedMenus({})
+    }
+  }, [location.pathname])
+
+  // 🧠 ACCORDION LIMPIO - Solo un menú abierto a la vez
+  const toggleMenu = (menuId) => {
+    setExpandedMenus((prev) => {
+      if (prev[menuId]) {
+        return {}
+      }
+      return { [menuId]: true }
+    })
+  }
+
+  const toggleSidebar = () => {
+    setIsExpanded((prev) => !prev)
+  }
+
+  const handleCollapsedClick = (e, item) => {
+    if (!isExpanded && isDesktop) {
+      e.preventDefault()
+      setIsExpanded(true)
+      if (item.subItems) {
+        setTimeout(() => {
+          toggleMenu(item.id)
+        }, 150)
+      }
+    }
+  }
 
   const sidebarWidth = isExpanded ? EXPANDED_WIDTH : COLLAPSED_WIDTH
 
@@ -55,6 +164,15 @@ const Sidebar = ({ onLogout }) => {
     if (!isDesktop) {
       setIsExpanded(false)
     }
+  }
+
+  const isSubItemActive = (path) => location.pathname === path
+
+  const isParentActive = (item) => {
+    if (item.subItems) {
+      return item.subItems.some(subItem => location.pathname === subItem.path)
+    }
+    return location.pathname === item.path
   }
 
   return (
@@ -78,12 +196,17 @@ const Sidebar = ({ onLogout }) => {
       )}
 
       <aside
-        className={`fixed lg:relative z-40 h-screen border-r transition-all duration-500 ease-out flex flex-col overflow-hidden will-change-[width,transform] ${tokens.sidebar}`}
+        className={`fixed lg:relative z-40 h-screen border-r transition-all duration-300 ease-out flex flex-col overflow-hidden will-change-transform ${tokens.sidebar}`}
         style={{
           width: isDesktop ? sidebarWidth : EXPANDED_WIDTH,
           transform: !isDesktop && !isExpanded ? "translateX(-100%)" : "translateX(0)",
         }}
       >
+        {/* Indicador sutil de que el sidebar está colapsado */}
+        {!isExpanded && isDesktop && (
+          <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-16 bg-gradient-to-b from-transparent via-purple-500/20 to-transparent pointer-events-none" />
+        )}
+
         <div className={`relative flex items-center h-20 border-b px-4 ${tokens.footerBorder}`}>
           <div className={`absolute inset-0 bg-gradient-to-b ${tokens.sidebarTopGlow}`} />
 
@@ -91,13 +214,13 @@ const Sidebar = ({ onLogout }) => {
             <div className="flex items-center justify-between w-full">
               <div className="flex items-center gap-3">
                 <div
-                  className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-lg ${tokens.brandBadge}`}
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-lg transition-transform duration-300 ${tokens.brandBadge} ${!isExpanded ? 'scale-110' : ''}`}
                 >
                   <span className="text-white font-bold text-xl">G</span>
                 </div>
 
                 {isExpanded && (
-                  <span className={`font-semibold tracking-wide text-lg ${tokens.brandText}`}>
+                  <span className={`font-semibold tracking-wide text-lg transition-opacity duration-300 ${tokens.brandText}`}>
                     GYM<span className={tokens.brandAccent}>ADMIN</span>
                   </span>
                 )}
@@ -106,7 +229,7 @@ const Sidebar = ({ onLogout }) => {
               <button
                 type="button"
                 onClick={toggleSidebar}
-                className={`flex items-center justify-center w-9 h-9 rounded-lg border transition-all duration-300 ${tokens.toggleButton}`}
+                className={`flex items-center justify-center w-9 h-9 rounded-lg border transition-transform duration-300 hover:scale-110 ${tokens.toggleButton}`}
                 aria-label={isExpanded ? "Cerrar sidebar" : "Abrir sidebar"}
               >
                 {isExpanded ? <MenuIcon /> : <ChevronRightIcon />}
@@ -119,51 +242,173 @@ const Sidebar = ({ onLogout }) => {
           {navigationItems.map((item) => {
             const Icon = item.icon
             const isHovered = hoveredItem === item.id
-            const isActive = location.pathname === item.path
+            const isActive = isParentActive(item)
+            const hasSubItems = item.subItems && item.subItems.length > 0
+            const isMenuExpanded = expandedMenus[item.id]
 
             return (
-              <Link
-                key={item.id}
-                to={item.path}
-                onClick={handleNavigation}
-                onMouseEnter={() => setHoveredItem(item.id)}
-                onMouseLeave={() => setHoveredItem(null)}
-                className={`
-                  relative group flex items-center rounded-xl cursor-pointer no-underline
-                  transition-all duration-300 ease-out
-                  ${isExpanded ? "px-4 py-3 gap-4" : "px-0 py-3 justify-center"}
-                  ${isActive ? tokens.navActive : tokens.navInactive}
-                `}
-              >
-                {isActive && (
+              <div key={item.id} className="space-y-1">
+                {hasSubItems ? (
                   <div
-                    className={`absolute left-0 w-1 h-8 rounded-r-full transition-all duration-300 bg-gradient-to-b ${tokens.navIndicator}`}
-                  />
+                    onMouseEnter={() => setHoveredItem(item.id)}
+                    onMouseLeave={() => setHoveredItem(null)}
+                    className={`
+                      w-full relative flex items-center rounded-xl
+                      transition-colors duration-300
+                      ${isExpanded ? "px-4 py-3" : "px-0 py-3 justify-center"}
+                      ${isActive ? tokens.navActive : tokens.navInactive}
+                      ${!isExpanded && 'hover:bg-opacity-60'}
+                    `}
+                  >
+                    {isActive && (
+                      <div
+                        className={`absolute left-0 w-1 h-8 rounded-r-full bg-gradient-to-b ${tokens.navIndicator}`}
+                      />
+                    )}
+
+                    {!isExpanded && isHovered && (
+                      <div
+                        className={`absolute left-full ml-2 px-3 py-1.5 text-sm rounded-lg whitespace-nowrap z-50 animate-fadeIn ${tokens.tooltip}`}
+                      >
+                        {item.label}
+                        <div className="absolute left-0 top-1/2 -translate-x-1 -translate-y-1/2 h-2 w-2 rotate-45 border-l border-t border-inherit bg-inherit" />
+                      </div>
+                    )}
+
+                    {/* 🎯 ZONAS DE INTERACCIÓN SEPARADAS */}
+                    {isExpanded ? (
+                      <div className="flex items-center justify-between w-full">
+                        {/* ZONA 1: CLICK EN LABEL → NAVEGA */}
+                        <div
+                          onClick={() => {
+                            navigate(item.subItems[0].path)
+                            handleNavigation()
+                          }}
+                          className="flex items-center gap-4 flex-1 cursor-pointer"
+                        >
+                          <Icon
+                            fontSize="small"
+                            className={`transition-opacity duration-300 ${
+                              isActive ? tokens.activeIcon : `${tokens.inactiveIcon} group-hover:opacity-80`
+                            }`}
+                          />
+
+                          <span className="text-sm font-medium">
+                            {item.label}
+                          </span>
+                        </div>
+
+                        {/* ZONA 2: CLICK EN FLECHA → ABRE/CIERRA */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            toggleMenu(item.id)
+                          }}
+                          className="p-1 rounded-md hover:bg-opacity-60 transition-colors duration-200"
+                        >
+                          {isMenuExpanded ? (
+                            <ExpandLessIcon fontSize="small" className={tokens.inactiveIcon} />
+                          ) : (
+                            <ExpandMoreIcon fontSize="small" className={tokens.inactiveIcon} />
+                          )}
+                        </button>
+                      </div>
+                    ) : (
+                      /* Versión colapsada - solo icono */
+                      <Icon
+                        fontSize="small"
+                        className={`transition-opacity duration-300 ${
+                          isActive ? tokens.activeIcon : `${tokens.inactiveIcon} group-hover:opacity-80`
+                        }`}
+                      />
+                    )}
+                  </div>
+                ) : (
+                  <Link
+                    to={item.path}
+                    onClick={(e) => {
+                      if (!isExpanded) {
+                        handleCollapsedClick(e, item)
+                      } else {
+                        handleNavigation()
+                      }
+                    }}
+                    onMouseEnter={() => setHoveredItem(item.id)}
+                    onMouseLeave={() => setHoveredItem(null)}
+                    className={`
+                      relative group flex items-center rounded-xl cursor-pointer no-underline
+                      transition-colors duration-300
+                      ${isExpanded ? "px-4 py-3 gap-4" : "px-0 py-3 justify-center"}
+                      ${isActive ? tokens.navActive : tokens.navInactive}
+                      ${!isExpanded && 'hover:bg-opacity-60'}
+                    `}
+                  >
+                    {isActive && (
+                      <div
+                        className={`absolute left-0 w-1 h-8 rounded-r-full bg-gradient-to-b ${tokens.navIndicator}`}
+                      />
+                    )}
+
+                    {!isExpanded && isHovered && (
+                      <div
+                        className={`absolute left-full ml-2 px-3 py-1.5 text-sm rounded-lg whitespace-nowrap z-50 animate-fadeIn ${tokens.tooltip}`}
+                      >
+                        {item.label}
+                        <div className="absolute left-0 top-1/2 -translate-x-1 -translate-y-1/2 h-2 w-2 rotate-45 border-l border-t border-inherit bg-inherit" />
+                      </div>
+                    )}
+
+                    <Icon
+                      fontSize="small"
+                      className={`
+                        transition-opacity duration-300
+                        ${isActive ? tokens.activeIcon : `${tokens.inactiveIcon} group-hover:opacity-80`}
+                      `}
+                    />
+
+                    {isExpanded && (
+                      <span className="text-sm font-medium flex-1">
+                        {item.label}
+                      </span>
+                    )}
+                  </Link>
                 )}
 
-                {!isExpanded && isHovered && (
-                  <div
-                    className={`absolute left-full ml-2 px-3 py-1.5 text-sm rounded-lg whitespace-nowrap z-50 animate-in fade-in slide-in-from-left-2 duration-200 ${tokens.tooltip}`}
-                  >
-                    {item.label}
-                    <div className="absolute left-0 top-1/2 -translate-x-1 -translate-y-1/2 h-2 w-2 rotate-45 border-l border-t border-inherit bg-inherit" />
+                {/* Submenús - Estilo minimalista tipo Notion/Linear */}
+                {hasSubItems && isExpanded && isMenuExpanded && (
+                  <div className="ml-6 space-y-1 overflow-hidden">
+                    {item.subItems.map((subItem) => {
+                      const isSubActive = isSubItemActive(subItem.path)
+                      
+                      return (
+                        <Link
+                          key={subItem.id}
+                          to={subItem.path}
+                          onClick={handleNavigation}
+                          className={`
+                            flex items-center rounded-lg cursor-pointer no-underline
+                            transition-colors duration-200 py-2.5 px-4 gap-3
+                            ${isSubActive 
+                              ? `${tokens.navActive} font-medium` 
+                              : `${tokens.navInactive} hover:bg-opacity-60`
+                            }
+                          `}
+                        >
+                          <div className={`w-1.5 h-1.5 rounded-full transition-colors duration-200 ${
+                            isSubActive ? tokens.activeIcon : tokens.inactiveIcon
+                          }`} />
+                          
+                          <span className={`text-sm transition-colors duration-200 ${
+                            isSubActive ? "font-medium" : ""
+                          }`}>
+                            {subItem.label}
+                          </span>
+                        </Link>
+                      )
+                    })}
                   </div>
                 )}
-
-                <Icon
-                  fontSize="small"
-                  className={`
-                    transition-all duration-300 ease-out
-                    ${isActive ? `${tokens.activeIcon} scale-110` : `${tokens.inactiveIcon} group-hover:scale-110`}
-                  `}
-                />
-
-                {isExpanded && (
-                  <span className="text-sm font-medium flex-1 transition-all duration-300">
-                    {item.label}
-                  </span>
-                )}
-              </Link>
+              </div>
             )
           })}
         </nav>
@@ -176,16 +421,17 @@ const Sidebar = ({ onLogout }) => {
             onClick={onLogout}
             className={`
               group relative flex items-center rounded-xl w-full
-              transition-all duration-300 ease-out
+              transition-colors duration-300
               ${isExpanded
                 ? `px-4 py-3 gap-4 ${tokens.navInactive} ${tokens.logoutHover}`
                 : `px-0 py-3 justify-center ${tokens.navInactive} ${tokens.logoutHover}`}
+              ${!isExpanded && 'hover:bg-opacity-60'}
             `}
             aria-label="Cerrar sesion"
           >
             {!isExpanded && (
               <div
-                className={`absolute left-full ml-2 px-3 py-1.5 text-sm rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none translate-x-0 group-hover:translate-x-1 ${tokens.tooltip}`}
+                className={`absolute left-full ml-2 px-3 py-1.5 text-sm rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none ${tokens.tooltip}`}
               >
                 Cerrar sesion
                 <div className="absolute left-0 top-1/2 -translate-x-1 -translate-y-1/2 h-2 w-2 rotate-45 border-l border-t border-inherit bg-inherit" />
@@ -195,13 +441,13 @@ const Sidebar = ({ onLogout }) => {
             <LogoutOutlinedIcon
               fontSize="small"
               className={`
-                transition-all duration-300 ease-out
-                ${tokens.logoutIcon} group-hover:scale-110
+                transition-opacity duration-300
+                ${tokens.logoutIcon} group-hover:opacity-80
               `}
             />
 
             {isExpanded && (
-              <span className="text-sm font-medium flex-1 text-left transition-all duration-300">
+              <span className="text-sm font-medium flex-1 text-left">
                 Cerrar sesion
               </span>
             )}
@@ -210,8 +456,8 @@ const Sidebar = ({ onLogout }) => {
 
         <div
           className={`
-            px-4 pb-4 transition-all duration-500 ease-out
-            ${isExpanded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 pointer-events-none"}
+            px-4 pb-4 transition-opacity duration-300
+            ${isExpanded ? "opacity-100" : "opacity-0 pointer-events-none"}
           `}
         >
           <div className={`text-[10px] ${tokens.footerVersion}`}>
@@ -240,7 +486,7 @@ const Sidebar = ({ onLogout }) => {
           }
         }
 
-        .animate-in {
+        .animate-fadeIn {
           animation: fadeIn 0.2s ease-out;
         }
       `}</style>
